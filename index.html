@@ -1,23 +1,47 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+import {
+  getDatabase,
+  ref,
+  get
+} from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 
-const app = initializeApp({
-  databaseURL: document.querySelector("#firebaseUrl").value
-});
-const db = getDatabase(app);
+let app;
 
-document.querySelector("#connectBtn").onclick = async () => {
-  const status = document.querySelector("#connectionStatus");
-  status.textContent = "Connecting...";
-  try {
-    const data = await get(ref(db, "/"));
-    status.textContent = "Connected ✓";
-    document.querySelector("#items").textContent =
-      JSON.stringify(data.val(), null, 2);
-  } catch (e) {
-    status.textContent = "Failed: " + e.message;
+document.getElementById("connectBtn").onclick = async () => {
+  const url = document.getElementById("firebaseUrl").value.trim();
+  const status = document.getElementById("connectionStatus");
+  const output = document.getElementById("items");
+
+  if (!url) {
+    status.textContent = "Firebase URL enter karo";
+    return;
   }
+
+  status.textContent = "Connecting...";
+  output.textContent = "";
+
+  try {
+    if (app) {
+      // Reuse app if already initialized
+    } else {
+      app = initializeApp({ databaseURL: url }, "ayush-panel");
+    }
+
+    const db = getDatabase(app);
+    const snapshot = await get(ref(db, "/"));
+
+    status.textContent = "Connected ✓";
+    output.textContent = JSON.stringify(snapshot.val(), null, 2);
+  } catch (error) {
+    status.textContent = "Connection failed: " + error.message;
+  }
+};
+
+document.getElementById("clearBtn").onclick = () => {
+  document.getElementById("firebaseUrl").value = "";
+  document.getElementById("connectionStatus").textContent = "Disconnected";
+  document.getElementById("items").textContent = "";
 };
 </script>
