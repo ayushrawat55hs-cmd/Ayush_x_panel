@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AYUSH X PANEL</title>
+<style>
+:root{--bg:#050608;--card:#101113;--line:#242529;--muted:#777b84;--red:#e52d35;--blue:#35b8f4;--green:#00c995}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f5f6f8;font:15px Inter,system-ui,Arial;min-height:100vh}
+header{position:sticky;top:0;background:#17191f;border-bottom:1px solid #292b32;padding:17px 18px;display:flex;align-items:center;gap:12px;z-index:2}
+.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#ff382e,#bb270e);display:grid;place-items:center;font-size:22px}
+header h1{font-size:19px;margin:0}header small{display:block;color:#a5a8b0;margin-top:4px}
+main{max-width:900px;margin:auto;padding:24px 16px 60px}
+.hero{text-align:center;padding:35px 0 25px}.shield{margin:auto;width:85px;height:85px;border-radius:25px;background:linear-gradient(135deg,#ed3029,#ba2b0c);display:grid;place-items:center;font-size:35px;box-shadow:0 0 40px #e32b3020}
+.hero h2{font-size:38px;margin:18px 0 5px;letter-spacing:-2px}.hero h2 span{color:var(--blue)}.hero p{color:var(--muted);margin:0}
+.panel,.stat,.device{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;margin:14px 0}
+.panel h3{margin:0 0 15px;font-size:17px}
+label{display:block;color:#aeb1ba;font-size:13px;margin:12px 0 7px}
+input{width:100%;padding:15px;border-radius:13px;border:1px solid #2b2d32;background:#08090b;color:#fff;font-size:15px;outline:none}
+input:focus{border-color:#35b8f4}
+button{border:0;border-radius:13px;padding:14px 18px;background:var(--red);color:white;font-weight:700;font-size:15px;cursor:pointer}
+button.secondary{background:#1c1e23;border:1px solid #303239;color:#ddd}
+.actions{display:flex;gap:10px;margin-top:15px}.actions button{flex:1}
+.notice{font-size:12px;color:#858993;line-height:1.6;margin-top:12px}
+.status{display:inline-flex;align-items:center;gap:8px;border:1px solid #07583f;background:#06271e;color:#00d59a;border-radius:30px;padding:9px 14px;font-weight:600}
+.dot{width:8px;height:8px;background:currentColor;border-radius:50%}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{padding:15px;margin:0;border-radius:16px}.stat small{color:var(--muted);font-size:11px;letter-spacing:1px}.stat strong{display:block;font-size:25px;margin-top:8px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.toolbar button{padding:10px 14px;background:#17181c;color:#9b9da5;border:1px solid #292a30}.toolbar button.active{background:#321014;color:#ff6268;border-color:#681b24}
+.empty{text-align:center;padding:28px;color:#777}.device h4{margin:0 0 8px;font-size:17px}.device p{color:#8b8e96;margin:6px 0}.device .badge{color:#00c995}.hidden{display:none}
+footer{text-align:center;color:#555b64;font-size:12px;padding:20px}
+@media(max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.hero h2{font-size:32px}.panel{padding:16px}}
+</style></head>
+<body>
+<header><div class="logo">⬡</div><div><h1>AYUSH X PANEL</h1><small>Connection Management Panel</small></div></header>
+<main>
+<section class="hero"><div class="shield">♢</div><h2><span>ayush</span>x</h2><p>Connection Management Panel</p></section>
+<section class="panel" id="connectBox"><h3>＋ Connect Firebase</h3>
+<label for="firebaseUrl">Firebase Realtime Database URL</label><input id="firebaseUrl" placeholder="https://your-project-default-rtdb.firebaseio.com">
+<div class="actions"><button id="connectBtn">Connect Firebase</button><button class="secondary" id="clearBtn">Clear</button></div>
+<p class="notice">Demo UI: this page does not upload or save your Firebase URL. Connect only to a database you own or are authorized to use. Public/readable data should not contain private information.</p>
+<div id="msg" class="notice"></div></section>
+<section id="dashboard" class="hidden">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span class="status"><span class="dot"></span><span id="state">Connected</span></span><button class="secondary" id="disconnect">Disconnect</button></div>
+<div class="stats" style="margin-top:16px"><div class="stat"><small>TOTAL</small><strong id="total">0</strong></div><div class="stat"><small>ONLINE</small><strong style="color:var(--green)">—</strong></div><div class="stat"><small>OFFLINE</small><strong>—</strong></div><div class="stat"><small>DATA</small><strong id="dataCount">0</strong></div></div>
+<div class="toolbar"><button class="active" data-filter="all">All</button><button data-filter="object">Objects</button><button data-filter="array">Arrays</button><button data-filter="scalar">Values</button></div>
+<div id="cards"></div>
+</section>
+</main><footer>AYUSH X PANEL · Use only authorized Firebase databases</footer>
+<script>
+const $=s=>document.querySelector(s);let records=[];
+function safe(v){return typeof v==='string'?v:JSON.stringify(v,null,2)}
+function kind(v){return Array.isArray(v)?'array':v&&typeof v==='object'?'object':'scalar'}
+function render(filter='all'){const list=records.filter(x=>filter==='all'||kind(x.value)===filter);$('#cards').innerHTML=list.length?list.map(x=>`<article class="device"><h4>${escapeHtml(x.key)}</h4><p>${kind(x.value).toUpperCase()}</p><pre style="white-space:pre-wrap;overflow-wrap:anywhere;color:#b8bbc3">${escapeHtml(safe(x.value))}</pre></article>`).join(''):'<div class="panel empty">No data found for this filter.</div>'}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('#connectBtn').onclick=async()=>{const url=$('#firebaseUrl').value.trim().replace(/\/+$/,'');if(!/^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*\.firebaseio\.com$/i.test(url)&&!/^https:\/\/[a-z0-9-]+\.firebasedatabase\.app$/i.test(url)){ $('#msg').textContent='Enter a valid Firebase Realtime Database URL.';return}
+$('#msg').textContent='Connecting…';try{const r=await fetch(url+'/.json');if(!r.ok)throw Error('Database returned '+r.status+' (rules may require authentication).');const data=await r.json();records=data&&typeof data==='object'?Object.entries(data).map(([key,value])=>({key,value})): [{key:'root',value:data}];$('#dashboard').classList.remove('hidden');$('#total').textContent=records.length;$('#dataCount').textContent=records.length;$('#msg').textContent='Connected successfully. Read-only preview.';render()}catch(e){$('#msg').textContent='Could not connect: '+e.message+' Check URL, network, and database rules.'}}
+$('#clearBtn').onclick=()=>{$('#firebaseUrl').value='';$('#msg').textContent=''}
+$('#disconnect').onclick=()=>{$('#dashboard').classList.add('hidden');records=[];$('#msg').textContent='Disconnected.'}
+document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-filter]').forEach(x=>x.classList.remove('active'));b.classList.add('active');render(b.dataset.filter)})
+</script></body></html>
