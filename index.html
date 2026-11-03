@@ -1,215 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AYUSH X PANEL</title>
 
-<style>
-*{box-sizing:border-box}
-body{
-margin:0;
-color:#edf5ff;
-font-family:system-ui;
-background:
-radial-gradient(ellipse at 15% 0%,#172c50,transparent 42%),
-radial-gradient(ellipse at 90% 30%,#211b4a,transparent 35%),
-linear-gradient(145deg,#061225,#09182d,#10132c);
-min-height:100vh;
-}
-header{
-padding:16px;
-background:#071426dd;
-border-bottom:1px solid #263e5c;
-}
-.top{
-max-width:1050px;
-margin:auto;
-display:flex;
-align-items:center;
-gap:12px;
-}
-.logo{
-width:42px;height:42px;
-display:grid;place-items:center;
-border-radius:14px;
-background:linear-gradient(135deg,#36baff,#7865ff);
-}
-.brand{font-weight:900;letter-spacing:2px}
-.brand span,h1 span{color:#52c8ff}
-.right{
-margin-left:auto;
-color:#37e6b0;
-background:#092e35;
-border:1px solid #236b61;
-padding:8px 12px;
-border-radius:30px;
-}
-.wrap{max-width:1050px;margin:25px auto;padding:0 16px}
-.hero{text-align:center;padding:27px}
-.heroicon{
-margin:auto;width:78px;height:78px;
-display:grid;place-items:center;
-font-size:32px;border-radius:24px;
-background:linear-gradient(135deg,#32baff,#7e63ff);
-box-shadow:0 0 40px #52c8ff30;
-}
-.hero h1{font-size:34px;margin:14px 0 3px}
-.muted{color:#91a6c2}
-.card,.stat,.device{
-background:linear-gradient(145deg,#102541dd,#0c1b32dd);
-border:1px solid #294260;
-border-radius:20px;
-box-shadow:0 15px 35px #02081735;
-}
-.card{padding:18px}
-.inputrow{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
-input{
-flex:1;min-width:180px;padding:13px;
-background:#071426;border:1px solid #294260;
-border-radius:12px;color:white;
-}
-button,select{
-padding:11px 14px;background:#142944;
-border:1px solid #2b4564;color:#eaf4ff;
-border-radius:12px;cursor:pointer;
-}
-.primary{background:linear-gradient(135deg,#238edb,#735bdf);border:0;font-weight:700}
-.note{font-size:12px;color:#91a6c2;margin-top:10px}
-.stats{
-display:grid;grid-template-columns:repeat(4,1fr);
-gap:12px;margin:18px 0;
-}
-.stat{padding:16px}
-.stat small{display:block;color:#91a6c2;letter-spacing:1px}
-.stat b{font-size:27px}
-.green{color:#37e6b0}
-.blue{color:#52c8ff}
-.bar{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
-.bar input{min-width:150px}
-.active{background:#19365a;color:#7bd6ff}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.device{padding:18px}
-.number{
-font-size:23px;font-weight:850;
-color:#f4f8ff;overflow-wrap:anywhere;
-}
-.dname{font-weight:750;margin-top:5px}
-.id{color:#91a6c2;font-size:12px}
-.details{
-display:grid;grid-template-columns:1fr 1fr;
-gap:14px;margin:17px 0;
-}
-.details small{display:block;color:#91a6c2;font-size:11px}
-.details b{display:block;margin-top:4px}
-.status{color:#91a6c2;padding-top:12px;border-top:1px solid #263e5c}
-.foot{text-align:center;color:#7186a3;padding:30px;font-size:12px}
-@media(max-width:600px){
-.stats{grid-template-columns:repeat(2,1fr)}
-.grid{grid-template-columns:1fr}
-.hero h1{font-size:29px}
-}
-</style>
-</head>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 
-<body>
-<header>
-<div class="top">
-<div class="logo">⬡</div>
-<div class="brand">A Y U S H <span>X</span></div>
-<div class="right">● Demo Mode</div>
-</div>
-</header>
+const firebaseConfig = {
+  databaseURL: "APNA_REALTIME_DATABASE_URL"
+};
 
-<main class="wrap">
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-<section class="hero">
-<div class="heroicon">⬡</div>
-<h1><span>ayush</span>x</h1>
-<div class="muted">Connection Management Dashboard</div>
-</section>
+async function connectFirebase() {
+  const status = document.getElementById("connectionStatus");
+  status.innerText = "Connecting...";
 
-<section class="card">
-<b style="font-size:18px">＋ Connect Firebase</b>
-<div class="inputrow">
-<input id="dburl" placeholder="Firebase Database URL">
-<button class="primary" onclick="connectFirebase()">Connect</button>
-</div>
-<div class="note">Demo UI · Authorized databases only</div>
-</section>
+  try {
+    const snapshot = await get(ref(db, "/"));
 
-<div class="stats">
-<div class="stat"><small>TOTAL</small><b id="total">4</b></div>
-<div class="stat"><small>ONLINE</small><b class="green" id="online">2</b></div>
-<div class="stat"><small>OFFLINE</small><b id="offline">2</b></div>
-<div class="stat"><small>RECORDS</small><b class="blue">4</b></div>
-</div>
-
-<div class="bar">
-<button class="active" onclick="filter('All',this)">All</button>
-<button onclick="filter('Online',this)">Online</button>
-<button onclick="filter('Offline',this)">Offline</button>
-<button onclick="filter('UPI',this)">UPI</button>
-<button onclick="filter('Bank',this)">Bank</button>
-<input id="search" placeholder="Search devices..." oninput="render()">
-</div>
-
-<div class="grid" id="items"></div>
-
-<div class="foot">AYUSH X PANEL · Navy Edition</div>
-</main>
-
-<script>
-const devices=[
-{number:"+91 ••••• ••101",name:"Pixel Demo",id:"demo-01",os:"Android 14",battery:82,type:"UPI",online:true},
-{number:"+91 ••••• ••202",name:"Galaxy Demo",id:"demo-02",os:"Android 13",battery:46,type:"Bank",online:true},
-{number:"+91 ••••• ••303",name:"Demo Device 03",id:"demo-03",os:"Android 12",battery:12,type:"UPI",online:false},
-{number:"+91 ••••• ••404",name:"Demo Device 04",id:"demo-04",os:"Android 11",battery:0,type:"Bank",online:false}
-];
-
-let currentFilter="All";
-
-function render(){
-const q=document.getElementById("search").value.toLowerCase();
-
-const filtered=devices.filter(d=>{
-const status=d.online?"Online":"Offline";
-return (currentFilter==="All"||currentFilter===status||currentFilter===d.type)
-&&(`${d.name} ${d.id} ${d.number}`.toLowerCase().includes(q));
-});
-
-document.getElementById("items").innerHTML=filtered.map(d=>`
-<div class="device">
-<div class="number">${d.number}</div>
-<div class="dname">${d.name}</div>
-<div class="id">${d.id}</div>
-
-<div class="details">
-<div><small>PLATFORM</small><b>${d.os}</b></div>
-<div><small>BATTERY</small><b class="green">${d.battery}%</b></div>
-<div><small>CATEGORY</small><b>${d.type}</b></div>
-<div><small>DEVICE ID</small><b>${d.id}</b></div>
-</div>
-
-<div class="status">
-${d.online?"🟢 Online":"⚫ Offline"}
-</div>
-</div>
-`).join("")||"<div>No devices found</div>";
+    status.innerText = "Connected ✓";
+    console.log("Firebase connected:", snapshot.val());
+  } catch (error) {
+    status.innerText = "Connection Failed";
+    console.error(error);
+  }
 }
 
-function filter(type,button){
-currentFilter=type;
-document.querySelectorAll(".bar button").forEach(b=>b.classList.remove("active"));
-button.classList.add("active");
-render();
-}
-
-function connectFirebase(){
-alert("Firebase integration abhi demo version mein enabled nahi hai.");
-}
-
-render();
+document.getElementById("connectBtn")
+  .addEventListener("click", connectFirebase);
 </script>
-</body>
-</html>
