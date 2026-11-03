@@ -3,28 +3,21 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 
-const firebaseConfig = {
-  databaseURL: "APNA_REALTIME_DATABASE_URL"
-};
-
-const app = initializeApp(firebaseConfig);
+const app = initializeApp({
+  databaseURL: document.querySelector("#firebaseUrl").value
+});
 const db = getDatabase(app);
 
-async function connectFirebase() {
-  const status = document.getElementById("connectionStatus");
-  status.innerText = "Connecting...";
-
+document.querySelector("#connectBtn").onclick = async () => {
+  const status = document.querySelector("#connectionStatus");
+  status.textContent = "Connecting...";
   try {
-    const snapshot = await get(ref(db, "/"));
-
-    status.innerText = "Connected ✓";
-    console.log("Firebase connected:", snapshot.val());
-  } catch (error) {
-    status.innerText = "Connection Failed";
-    console.error(error);
+    const data = await get(ref(db, "/"));
+    status.textContent = "Connected ✓";
+    document.querySelector("#items").textContent =
+      JSON.stringify(data.val(), null, 2);
+  } catch (e) {
+    status.textContent = "Failed: " + e.message;
   }
-}
-
-document.getElementById("connectBtn")
-  .addEventListener("click", connectFirebase);
+};
 </script>
